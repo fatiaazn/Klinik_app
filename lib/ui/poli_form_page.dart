@@ -1,6 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:klinik_app/ui/poli_detail_page.dart';
-
 import '../model/poli.dart';
 import '../service/poli_service.dart';
 
@@ -13,42 +13,61 @@ class PoliForm extends StatefulWidget {
 
 class _PoliFormState extends State<PoliForm> {
   final _formKey = GlobalKey<FormState>();
+  final _idPoliCtrl = TextEditingController();
   final _namaPoliCtrl = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Tambah Poli")),
       body: SingleChildScrollView(
-        child: Form(
+        child: Container(
+          padding: EdgeInsets.fromLTRB(15, 15, 15, 0),
+          child: Form(
             child: Column(
-          children: [
-            _fieldNamaPoli(),
-            SizedBox(height: 20),
-            _tombolSimpan()
-          ],
-        )),
+              children: [
+                _wTextField(namaField: "Nama Poli", namaController: _namaPoliCtrl, namaIcon: Icons.room_preferences_rounded),
+                SizedBox(height: 10),
+                _wTombolSimpan()
+              ],
+            )
+          ),
+        ),
       ),
     );
   }
 
-  _fieldNamaPoli(){
+  Widget _wTextField({required String namaField, required namaController, required namaIcon}){
     return TextField(
       decoration: InputDecoration(
-        labelText: "Nama Poli"
+        labelText: namaField,
+        prefixIcon: Icon(namaIcon),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10)
+        ),
       ),
-      controller: _namaPoliCtrl,
+      controller: namaController,
     );
   }
 
-  _tombolSimpan(){
+  Widget _wTombolSimpan(){
     return ElevatedButton(
       onPressed: () async {
-        Poli poli = Poli(namaPoli: _namaPoliCtrl.text);
-        await PoliService().simpan(poli).then((value) {
+        Poli poli = Poli(
+            // id: _idPoliCtrl.text,
+            nm_poli: _namaPoliCtrl.text,
+        );
+        await PoliService().addPoli(poli).then((value) {
           Navigator.pushReplacement(context,
               MaterialPageRoute(builder:
-                  (context) => PoliDetailPage(poli: value)));
+                  (context) => PoliDetailPage(poli: poli)));
         });
       },
       child: Text("Simpan")

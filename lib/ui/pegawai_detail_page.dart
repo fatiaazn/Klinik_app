@@ -13,11 +13,6 @@ class PegawaiDetailPage extends StatefulWidget {
 }
 
 class _PegawaiDetailPageState extends State<PegawaiDetailPage> {
-  Stream<Pegawai> getData() async* {
-    Pegawai data = await PegawaiService().getById(widget.pegawai.id.toString());
-    yield data;
-  }
-
   @override
   Widget build(BuildContext context) {
     double baseWidth = 360;
@@ -26,71 +21,87 @@ class _PegawaiDetailPageState extends State<PegawaiDetailPage> {
 
     return Scaffold(
       appBar: AppBar(title: Text("Detail Pegawai"),),
-      body: StreamBuilder(
-        stream: getData(),
-        builder: (context, AsyncSnapshot snapshot){
-          if(snapshot.hasError){
-            return Text(snapshot.error.toString());
-          }
-          if (snapshot.connectionState != ConnectionState.done){
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          if(!snapshot.hasData && snapshot.connectionState == ConnectionState.done){
-            return Text("Data Kosong");
-          }
-
-          return Column(
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.fromLTRB(15*fem, 0*fem, 15*fem, 0*fem),
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 20*fem),
-              Text(
-                "Nama Pegawai : ${snapshot.data.namaPegawai}",
-                style: TextStyle(fontSize: 20*ffem),
+              Center(
+                child: SizedBox(
+                  height: 110*fem,
+                  width: 110*fem,
+                  child: CircleAvatar(
+                    backgroundColor: Colors.blue,
+                    child: SizedBox(
+                        height: 65*fem,
+                        width: 65*fem,
+                        child: Image.asset("assets/img/pegawai.png",)
+                    ),
+                  ),
+                ),
               ),
-              SizedBox(height: 10*fem),
-              Text(
-                "Tanggal Lahir : ${snapshot.data.tgllhrPegawai}",
-                style: TextStyle(fontSize: 20*ffem),
-              ),
-              SizedBox(height: 10*fem),
-              Text(
-                "Nomor Telepon : ${snapshot.data.telpPegawai}",
-                style: TextStyle(fontSize: 20*ffem),
-              ),
-              SizedBox(height: 10*fem),
-              Text(
-                "Email : ${snapshot.data.emailPegawai}",
-                style: TextStyle(fontSize: 20*ffem),
-              ),
-              SizedBox(height: 10*fem),
-              Text(
-                "Password : ${snapshot.data.passwordPegawai}",
-                style: TextStyle(fontSize: 20*ffem),
-              ),
+              SizedBox(height: 5*fem,),
+              Align(alignment: Alignment.center, child: Text(widget.pegawai.namaPegawai!, style: TextStyle(fontSize: 26*ffem, fontWeight: FontWeight.bold))),
+              Align(alignment: Alignment.center, child: Text("NIP : " + widget.pegawai.nipPegawai!, style: TextStyle(fontSize: 16*ffem))),
+              SizedBox(height: 30*fem,),
+
+              Text("Detail Pegawai :", style: TextStyle(fontSize: 18*ffem, fontWeight: FontWeight.bold)),
+              SizedBox(height: 5*fem,),
+              _wText(namaKetField: "NIP Pegawai", namaField: widget.pegawai.nipPegawai, namaIcon: Icons.credit_card, warnaBG: Colors.blueAccent),
+              _wText(namaKetField: "Nama Pegawai", namaField: widget.pegawai.namaPegawai, namaIcon: Icons.people_alt, warnaBG: Colors.yellow),
+              _wText(namaKetField: "Password Pegawai", namaField: widget.pegawai.passwordPegawai, namaIcon: Icons.lock, warnaBG: Colors.green),
+              _wText(namaKetField: "Tanggal Lahir Pegawai", namaField: widget.pegawai.tglLahirPegawai, namaIcon: Icons.date_range_outlined, warnaBG: Colors.redAccent),
+              _wText(namaKetField: "Telp Pegawai", namaField: widget.pegawai.telpPegawai, namaIcon: Icons.phone, warnaBG: Colors.orange),
+              _wText(namaKetField: "Email Pegawai", namaField: widget.pegawai.emailPegawai, namaIcon: Icons.home, warnaBG: Colors.deepPurple),
               SizedBox(height: 20*fem),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _tombolubah(),
-                  _tombolhapus()
+                  _wTombolUbah(),
+                  SizedBox(width: 15*fem,),
+                  _wTombolHapus()
                 ],
               )
             ],
-          );
-        },
+          ),
+        ),
       ),
     );
   }
 
-  _tombolubah(){
-    return StreamBuilder(
-      stream: getData(),
-      builder: (context, AsyncSnapshot snapshot) => ElevatedButton(
+  Widget _wText({required String namaKetField, required namaField, required namaIcon, required Color warnaBG}){
+    double baseWidth = 360;
+    double fem = MediaQuery.of(context).size.width / baseWidth;
+    double ffem = fem * 0.97;
+
+    return Container(
+      margin: EdgeInsets.only(bottom: 10*fem),
+      padding: EdgeInsets.zero,
+      color: Colors.white,
+      child: ListTile(
+        title: Text(namaKetField, style: TextStyle(fontSize: 11*ffem, fontWeight: FontWeight.bold)),
+        subtitle: Text(namaField, style: TextStyle(fontSize: 16*ffem)),
+        leading: CircleAvatar(
+          backgroundColor: warnaBG,
+          child: SizedBox(height: 50*fem, width: 50*fem, child: Icon(namaIcon, color: Colors.white)),
+        ),
+        dense: true,
+        // visualDensity: VisualDensity(vertical: -3),
+        // contentPadding: EdgeInsets.only(bottom: 10),
+      ),
+    );
+  }
+
+  Widget _wTombolUbah(){
+    return Expanded(
+      child: ElevatedButton(
         onPressed: (){
-          Navigator.push(
+          Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => PegawaiUpdateForm(pegawai: snapshot.data))
+              MaterialPageRoute(builder: (context) => PegawaiUpdateForm(pegawai: widget.pegawai))
           );
         },
         style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white),
@@ -99,42 +110,39 @@ class _PegawaiDetailPageState extends State<PegawaiDetailPage> {
     );
   }
 
-  _tombolhapus(){
-    return ElevatedButton(
-      onPressed: (){
-        AlertDialog alertDialog = AlertDialog(
-          content: Text("Yakin ingin menghapus data ini?"),
-          actions: [
-            // tombol ya
-            StreamBuilder(
-              stream: getData(),
-              builder: (context, AsyncSnapshot snapshot) => ElevatedButton(
-                onPressed: () async {
-                  await PegawaiService().hapus(snapshot.data).then((value) {
-                    Navigator.pop(context);
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => PegawaiPage()));
-                  });
+  Widget _wTombolHapus(){
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: (){
+          AlertDialog alertDialog = AlertDialog(
+            content: Text("Yakin ingin menghapus data ini?"),
+            actions: [
+              // tombol ya
+              ElevatedButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) => PegawaiPage()));
                 },
                 child: Text("YA"),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
               ),
-            ),
 
-            // tombol batal
-            ElevatedButton(
-              onPressed: (){
-                Navigator.pop(context);
-              },
-              child: Text("Tidak"),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.grey, foregroundColor: Colors.black),
-            )
-          ],
-        );
-        showDialog(context: context, builder: (context) => alertDialog);
-      },
-      style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-      child: Text("Hapus"),
+              // tombol batal
+              ElevatedButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                },
+                child: Text("TIDAK"),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.grey, foregroundColor: Colors.white),
+              )
+            ],
+          );
+          showDialog(context: context, builder: (context) => alertDialog);
+        },
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+        child: Text("Hapus"),
+      ),
     );
   }
 }

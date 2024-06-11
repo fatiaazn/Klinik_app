@@ -15,6 +15,7 @@ class Sidebar extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: [
           UserAccountsDrawerHeader(
+            currentAccountPicture: Image.asset("assets/img/logo_ubsi.png"),
             accountName: Text("Admin"),
             accountEmail: Text("admin@admin.com"),
             decoration: BoxDecoration(

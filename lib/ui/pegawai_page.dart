@@ -15,20 +15,34 @@ class PegawaiPage extends StatefulWidget {
 }
 
 class _PegawaiPageState extends State<PegawaiPage> {
-  Stream<List<Pegawai>> getList() async* {
-    List<Pegawai> data = await PegawaiService().listData();
-    yield data;
+  PegawaiService _pegawaiService = PegawaiService();
+  Future<List<Pegawai>>? _pegawaiList;
+  List<Pegawai>? _retrievedPegawaiList;
+
+  Future<void> _initRetrieval() async {
+    _pegawaiList = _pegawaiService.retrievePegawai();
+    _retrievedPegawaiList = await _pegawaiService.retrievePegawai();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initRetrieval();
   }
 
   Future refreshData() async {
     await Future.delayed(Duration(seconds: 1));
     setState(() {
-      getList();
+      _initRetrieval();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    double baseWidth = 360;
+    double fem = MediaQuery.of(context).size.width / baseWidth;
+    double ffem = fem * 0.97;
+
     return Scaffold(
       drawer: Sidebar(),
       appBar: AppBar(
@@ -57,28 +71,34 @@ class _PegawaiPageState extends State<PegawaiPage> {
       ),
       body: RefreshIndicator(
         onRefresh: refreshData,
-        child: StreamBuilder(
-          stream: getList(),
-          builder: (context, AsyncSnapshot snapshot){
-            if(snapshot.hasError){
-              return Text(snapshot.error.toString());
-            }
-            if (snapshot.connectionState != ConnectionState.done){
-              return Center(
-                child: CircularProgressIndicator(),
+        child: FutureBuilder(
+            future: _pegawaiList,
+            builder: (BuildContext context, AsyncSnapshot<List<Pegawai>> snapshot) {
+              if(!snapshot.hasData){
+                return Center(child: CircularProgressIndicator());
+              }
+
+              return ListView.builder(
+                  itemCount: _retrievedPegawaiList!.length,
+                  itemBuilder: (context, index){
+                    var pegawai = _retrievedPegawaiList![index];
+                    return Dismissible(
+                      key: UniqueKey(),
+                      background: Container(
+                        color: Colors.redAccent,
+                        alignment: Alignment.centerRight,
+                        padding: EdgeInsets.only(right: 16),
+                        child: Icon(Icons.delete, color: Colors.white,),
+                      ),
+                      onDismissed: (direction){
+                        _pegawaiService.deletePegawai(pegawai.id!);
+                      },
+                      direction: DismissDirection.endToStart,
+                      child: PegawaiItemPage(pegawai: pegawai),
+                    );
+                  }
               );
             }
-            if(!snapshot.hasData && snapshot.connectionState == ConnectionState.done){
-              return Text("Data Kosong");
-            }
-
-            return ListView.builder(
-                itemCount: snapshot.data.length,
-                itemBuilder: (context, index) {
-                  return PegawaiItem(pegawai: snapshot.data[index]);
-                }
-            );
-          },
         ),
       ),
     );

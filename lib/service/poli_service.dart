@@ -1,39 +1,26 @@
-import 'package:dio/dio.dart';
-import '../helpers/api_client.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../model/poli.dart';
 
-class PoliService {
-  Future<List<Poli>> listData() async {
-    final Response response = await ApiClient().get("poli");
-    final List data = response.data as List;
-    List <Poli> result = data.map((json) => Poli.fromJson(json)).toList();
-    return result;
+final FirebaseFirestore _db = FirebaseFirestore.instance;
+
+class PoliService{
+  addPoli(Poli poli) async {
+    await _db.collection("poli").add(poli.toMap());
   }
 
-  Future<Poli> simpan(Poli poli) async {
-    var data = poli.toJson();
-    final Response response = await ApiClient().post("poli", data);
-    Poli result = Poli.fromJson(response.data);
-    return result;
+  updatePoli(Poli poli) async {
+    await _db.collection("poli").doc(poli.id).update(poli.toMap());
   }
 
-  Future<Poli> ubah(Poli poli, String id) async {
-    var data = poli.toJson();
-    final Response response = await ApiClient().put("poli/${id}", data);
-    print(response);
-    Poli result = Poli.fromJson(response.data);
-    return result;
+  Future<void> deletePoli(String id) async {
+    await _db.collection("poli").doc(id).delete();
   }
 
-  Future<Poli> getById(String id) async {
-    final Response response = await ApiClient().get("poli/${id}");
-    Poli result = Poli.fromJson(response.data);
-    return result;
-  }
-
-  Future<Poli> hapus(Poli poli) async {
-    final Response response = await ApiClient().delete("poli/${poli.id}");
-    Poli result = Poli.fromJson(response.data);
-    return result;
+  Future<List<Poli>> retrievePoli() async {
+    QuerySnapshot<Map<String, dynamic>> snapshot =
+    await _db.collection("poli").get();
+    return snapshot.docs
+        .map((docSnapshot) => Poli.fromDocumentSnapshot(docSnapshot))
+        .toList();
   }
 }

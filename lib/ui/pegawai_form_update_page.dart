@@ -14,126 +14,93 @@ class PegawaiUpdateForm extends StatefulWidget {
 
 class _PegawaiUpdateFormState extends State<PegawaiUpdateForm> {
   final _formKey = GlobalKey<FormState>();
+  final _idPegawaiCtrl = TextEditingController();
   final _namaPegawaiCtrl = TextEditingController();
   final _nipPegawaiCtrl = TextEditingController();
-  final _tgllhrPegawaiCtrl = TextEditingController();
+  final _tglLahirPegawaiCtrl = TextEditingController();
   final _telpPegawaiCtrl = TextEditingController();
   final _emailPegawaiCtrl = TextEditingController();
   final _passwordPegawaiCtrl = TextEditingController();
 
-  Future<Pegawai> getData() async {
-    Pegawai data = await PegawaiService().getById(widget.pegawai.id.toString());
-    setState(() {
-      _namaPegawaiCtrl.text = data.namaPegawai;
-      _nipPegawaiCtrl.text = data.nipPegawai;
-      _tgllhrPegawaiCtrl.text = data.tgllhrPegawai;
-      _telpPegawaiCtrl.text = data.telpPegawai;
-      _emailPegawaiCtrl.text = data.emailPegawai;
-      _passwordPegawaiCtrl.text = data.passwordPegawai;
-    });
-    return data;
-  }
-
   void initState(){
     super.initState();
     setState(() {
-      getData();
+      _namaPegawaiCtrl.text = widget.pegawai.namaPegawai!;
+      _nipPegawaiCtrl.text = widget.pegawai.nipPegawai!;
+      _tglLahirPegawaiCtrl.text = widget.pegawai.tglLahirPegawai!;
+      _telpPegawaiCtrl.text = widget.pegawai.telpPegawai!;
+      _emailPegawaiCtrl.text = widget.pegawai.emailPegawai!;
+      _passwordPegawaiCtrl.text = widget.pegawai.passwordPegawai!;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    double baseWidth = 360;
+    double fem = MediaQuery.of(context).size.width / baseWidth;
+    double ffem = fem * 0.97;
+
     return Scaffold(
       appBar: AppBar(title: Text("Ubah Pegawai")),
       body: SingleChildScrollView(
-        child: Form(
+        child: Container(
+          padding: EdgeInsets.fromLTRB(15, 15, 15, 0),
+          child: Form(
+            key: _formKey,
             child: Column(
               children: [
-                _fieldNipPegawai(),
-                _fieldNamaPegawai(),
-                _fieldTglLhrPegawai(),
-                _fieldTelpPegawai(),
-                _fieldEmailPegawai(),
-                _fieldPasswordPegawai(),
-                SizedBox(height: 20),
-                _tombolUbah()
+                _wTextField(namaField: "NIP Pegawai", namaController: _nipPegawaiCtrl, namaIcon: Icons.credit_card, tipekeyboard: TextInputType.number),
+                _wTextField(namaField: "Nama Pegawai", namaController: _namaPegawaiCtrl, namaIcon: Icons.people_alt),
+                _wTextField(namaField: "Tanggal Lahir Pegawai", namaController: _tglLahirPegawaiCtrl, namaIcon: Icons.date_range_outlined),
+                _wTextField(namaField: "Telp Pegawai", namaController: _telpPegawaiCtrl, namaIcon: Icons.phone, tipekeyboard: TextInputType.number),
+                _wTextField(namaField: "Email Pegawai", namaController: _emailPegawaiCtrl, namaIcon: Icons.email),
+                _wTextField(namaField: "Password Pegawai", namaController: _passwordPegawaiCtrl, namaIcon: Icons.lock),
+                _wTombolUbah()
               ],
-            )),
+            )
+          ),
+        ),
       ),
     );
   }
 
-  _fieldNipPegawai(){
-    return TextField(
-      decoration: InputDecoration(
-          labelText: "NIP Pegawai"
+  Widget _wTextField({required String namaField, required namaController, required namaIcon, tipekeyboard}){
+    double baseWidth = 360;
+    double fem = MediaQuery.of(context).size.width / baseWidth;
+    double ffem = fem * 0.97;
+
+    return Container(
+      padding: EdgeInsets.only(bottom: 15*fem),
+      child: TextField(
+        keyboardType: (tipekeyboard==null) ? TextInputType.text : tipekeyboard,
+        decoration: InputDecoration(
+          labelText: namaField,
+          prefixIcon: Icon(namaIcon),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10*fem)
+          ),
+        ),
+        controller: namaController,
       ),
-      controller: _nipPegawaiCtrl,
     );
   }
 
-  _fieldNamaPegawai(){
-    return TextField(
-      decoration: InputDecoration(
-          labelText: "Nama Pegawai"
-      ),
-      controller: _namaPegawaiCtrl,
-    );
-  }
-
-  _fieldTglLhrPegawai(){
-    return TextField(
-      decoration: InputDecoration(
-          labelText: "Tgl Lahir Pegawai"
-      ),
-      controller: _tgllhrPegawaiCtrl,
-    );
-  }
-
-  _fieldTelpPegawai(){
-    return TextField(
-      decoration: InputDecoration(
-          labelText: "Telp Pegawai"
-      ),
-      controller: _telpPegawaiCtrl,
-    );
-  }
-
-  _fieldEmailPegawai(){
-    return TextField(
-      decoration: InputDecoration(
-          labelText: "Email Pegawai"
-      ),
-      controller: _emailPegawaiCtrl,
-    );
-  }
-
-  _fieldPasswordPegawai(){
-    return TextField(
-      decoration: InputDecoration(
-          labelText: "Password Pegawai"
-      ),
-      controller: _passwordPegawaiCtrl,
-    );
-  }
-
-  _tombolUbah(){
+  Widget _wTombolUbah(){
     return ElevatedButton(
         onPressed: () async {
           Pegawai pegawai = Pegawai(
-              namaPegawai: _namaPegawaiCtrl.text,
-              passwordPegawai: _passwordPegawaiCtrl.text,
-              emailPegawai: _emailPegawaiCtrl.text,
-              telpPegawai: _telpPegawaiCtrl.text,
-              tgllhrPegawai: _tgllhrPegawaiCtrl.text,
-              nipPegawai: _nipPegawaiCtrl.text
+            nipPegawai: _nipPegawaiCtrl.text,
+            namaPegawai: _namaPegawaiCtrl.text,
+            tglLahirPegawai: _tglLahirPegawaiCtrl.text,
+            telpPegawai: _telpPegawaiCtrl.text,
+            emailPegawai: _emailPegawaiCtrl.text,
+            passwordPegawai: _passwordPegawaiCtrl.text,
           );
-          String id = widget.pegawai.id.toString();
-          await PegawaiService().ubah(pegawai, id).then((value) {
-            Navigator.pop(context);
+          await PegawaiService().updatePegawai(pegawai).then((value) {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder:
-                    (context) => PegawaiDetailPage(pegawai: value)));
+                    (context) => PegawaiDetailPage(pegawai: pegawai))
+            );
           });
         },
         child: Text("Ubah")

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "40715759091",
+    "project_id": "klinik-app-d9930",
+    "storage_bucket": "klinik-app-d9930.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:40715759091:android:2ce4a582f628280258b686",
+        "android_client_info": {
+          "package_name": "com.ubsi.klinik.klinik_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgjQ4jPaOnJMcsOwNbEatcb_1Doc_gKAY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:40715759091:android:c43f51aa9ac244dc58b686",
+        "android_client_info": {
+          "package_name": "com.yakspace.klinik_app.klinik_app2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgjQ4jPaOnJMcsOwNbEatcb_1Doc_gKAY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

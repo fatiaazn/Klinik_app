@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:klinik_app/service/poli_service.dart';
+import 'package:klinik_app/ui/poli_form_page.dart';
 import 'package:klinik_app/ui/poli_form_update_page.dart';
 import '../model/poli.dart';
-import '../service/poli_service.dart';
-import 'poli_page.dart';
 
 class PoliDetailPage extends StatefulWidget {
   final Poli poli;
@@ -14,69 +14,42 @@ class PoliDetailPage extends StatefulWidget {
 }
 
 class _PoliDetailPageState extends State<PoliDetailPage> {
-  Stream<Poli> getData() async* {
-    Poli data = await PoliService().getById(widget.poli.id.toString());
-    yield data;
-  }
+  PoliService _poliServiceNew = PoliService();
 
   @override
   Widget build(BuildContext context) {
-    double baseWidth = 360;
-    double fem = MediaQuery.of(context).size.width / baseWidth; //selain text
-    double ffem = fem * 0.97; //untuk text
-
     return Scaffold(
       appBar: AppBar(title: Text("Detail Poli"),),
-      body: StreamBuilder(
-        stream: getData(),
-        builder: (context, AsyncSnapshot snapshot){
-          if(snapshot.hasError){
-            return Text(snapshot.error.toString());
-          }
-          if (snapshot.connectionState != ConnectionState.done){
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          if(!snapshot.hasData && snapshot.connectionState == ConnectionState.done){
-            return Text("Data Kosong");
-          }
-
-          return Column(
+      body: Column(
+        children: [
+          SizedBox(height: 20),
+          Text(
+            "Nama Poli : ${widget.poli.nm_poli!}",
+            style: TextStyle(fontSize: 20),
+          ),
+          SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              SizedBox(height: 20*fem),
-              Text(
-                "Nama Poli : ${snapshot.data.namaPoli}",
-                style: TextStyle(fontSize: 20*ffem),
-              ),
-              SizedBox(height: 20*fem),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _tombolubah(),
-                  _tombolhapus()
-                ],
-              )
+              _tombolubah(),
+              _tombolhapus()
             ],
-          );
-        },
-      ),
+          )
+        ],
+      )
     );
   }
 
   _tombolubah(){
-    return StreamBuilder(
-      stream: getData(),
-      builder: (context, AsyncSnapshot snapshot) => ElevatedButton(
-        onPressed: (){
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => PoliUpdateForm(poli: snapshot.data))
-          );
-        },
-        style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white),
-        child: Text("Ubah"),
-      ),
+    return ElevatedButton(
+      onPressed: (){
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => PoliUpdateForm(poli: widget.poli))
+        );
+      },
+      style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white),
+      child: Text("Ubah"),
     );
   }
 
@@ -87,19 +60,13 @@ class _PoliDetailPageState extends State<PoliDetailPage> {
           content: Text("Yakin ingin menghapus data ini?"),
           actions: [
             // tombol ya
-            StreamBuilder(
-              stream: getData(),
-              builder: (context, AsyncSnapshot snapshot) => ElevatedButton(
-                onPressed: () async {
-                  await PoliService().hapus(snapshot.data).then((value) {
-                    Navigator.pop(context);
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => PoliPage()));
-                  });
-                },
-                child: Text("YA"),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-              ),
+            ElevatedButton(
+              onPressed: () async {
+                await _poliServiceNew.deletePoli(widget.poli.id!);
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => PoliForm()));
+              },
+              child: Text("YA"),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
             ),
 
             // tombol batal

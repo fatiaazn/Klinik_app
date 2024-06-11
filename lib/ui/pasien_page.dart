@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:klinik_app/ui/pasien_detail_page.dart';
 import 'package:klinik_app/ui/pasien_form_page.dart';
+import 'package:klinik_app/ui/pasien_item_page.dart';
 import 'package:klinik_app/widget/sidebar.dart';
 
 import '../model/pasien.dart';
+import '../service/pasien_service.dart';
 
 class PasienPage extends StatefulWidget {
   PasienPage({super.key});
@@ -13,8 +14,34 @@ class PasienPage extends StatefulWidget {
 }
 
 class _PasienPageState extends State<PasienPage> {
+  PasienService _pasienService = PasienService();
+  Future<List<Pasien>>? _pasienList;
+  List<Pasien>? _retrievedPasienList;
+
+  Future<void> _initRetrieval() async {
+    _pasienList = _pasienService.retrievePasien();
+    _retrievedPasienList = await _pasienService.retrievePasien();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initRetrieval();
+  }
+
+  Future refreshData() async {
+    await Future.delayed(Duration(seconds: 1));
+    setState(() {
+      _initRetrieval();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    double baseWidth = 360;
+    double fem = MediaQuery.of(context).size.width / baseWidth;
+    double ffem = fem * 0.97;
+
     return Scaffold(
       drawer: Sidebar(),
       appBar: AppBar(
@@ -31,7 +58,7 @@ class _PasienPageState extends State<PasienPage> {
         actions: [
           GestureDetector(
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(8*fem),
               child: Icon(Icons.add, color: Colors.white),
             ),
             onTap: () {
@@ -41,31 +68,37 @@ class _PasienPageState extends State<PasienPage> {
           )
         ],
       ),
-      body: ListView(
-        children: [
-          GestureDetector(
-            onTap: (){
-              Pasien pasien = new Pasien(
-                nomorRMPasien: "12345",
-                namaPasien: "A. Hanan Alkhalifi",
-                tgllhrPasien: "15-10-2023",
-                telpPasien: "089663920454",
-                alamatPasien: "Karawang",
+      body: RefreshIndicator(
+        onRefresh: refreshData,
+        child: FutureBuilder(
+            future: _pasienList,
+            builder: (BuildContext context, AsyncSnapshot<List<Pasien>> snapshot) {
+              if(!snapshot.hasData){
+                return Center(child: CircularProgressIndicator());
+              }
+
+              return ListView.builder(
+                  itemCount: _retrievedPasienList!.length,
+                  itemBuilder: (context, index){
+                    var pasien = _retrievedPasienList![index];
+                    return Dismissible(
+                      key: UniqueKey(),
+                      background: Container(
+                        color: Colors.redAccent,
+                        alignment: Alignment.centerRight,
+                        padding: EdgeInsets.only(right: 16),
+                        child: Icon(Icons.delete, color: Colors.white,),
+                      ),
+                      onDismissed: (direction){
+                        _pasienService.deletePasien(pasien.id!);
+                      },
+                      direction: DismissDirection.endToStart,
+                      child: PasienItemPage(pasien: pasien),
+                    );
+                  }
               );
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PasienDetailPage(pasien: pasien)
-                )
-              );
-            },
-            child: Card(
-              child: ListTile(
-                title: Text("A. Hanan Alkhalifi"),
-              ),
-            ),
-          ),
-        ],
+            }
+        ),
       ),
     );
   }

@@ -2,23 +2,25 @@ import 'package:flutter/material.dart';
 import '../../model/poli.dart';
 import 'poli_detail_page.dart';
 
-class PoliItem extends StatelessWidget {
+class PoliItemPage extends StatelessWidget {
   final Poli poli;
 
-  const PoliItem({super.key, required this.poli});
+  const PoliItemPage({super.key, required this.poli});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTap: () async {
+        Navigator.push(context, MaterialPageRoute(builder:
+            (context) => PoliDetailPage(poli: poli)));
+      },
       child: Card(
+        elevation: 2,
+        margin: EdgeInsets.symmetric(vertical: 8),
         child: ListTile(
-          title: Text("${poli.namaPoli}"),
+          title: Text(poli.nm_poli!, style: TextStyle(fontWeight: FontWeight.bold),),
         ),
       ),
-      onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => PoliDetailPage(poli: poli)));
-      },
     );
   }
 }

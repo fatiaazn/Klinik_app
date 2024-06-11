@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:klinik_app/service/poli_service.dart';
 import '../model/poli.dart';
-import '../service/poli_service.dart';
 import 'poli_detail_page.dart';
 
 class PoliUpdateForm extends StatefulWidget {
   final Poli poli;
-
   const PoliUpdateForm({Key? key, required this.poli}) : super(key: key);
 
   @override
@@ -14,20 +13,14 @@ class PoliUpdateForm extends StatefulWidget {
 
 class _PoliUpdateFormState extends State<PoliUpdateForm> {
   final _formKey = GlobalKey<FormState>();
+  final _idPoliCtrl = TextEditingController();
   final _namaPoliCtrl = TextEditingController();
-
-  Future<Poli> getData() async {
-    Poli data = await PoliService().getById(widget.poli.id.toString());
-    setState(() {
-      _namaPoliCtrl.text = data.namaPoli;
-    });
-    return data;
-  }
 
   void initState(){
     super.initState();
     setState(() {
-      getData();
+      _idPoliCtrl.text = widget.poli.id!;
+      _namaPoliCtrl.text = widget.poli.nm_poli!;
     });
   }
 
@@ -36,37 +29,46 @@ class _PoliUpdateFormState extends State<PoliUpdateForm> {
     return Scaffold(
       appBar: AppBar(title: Text("Ubah Poli")),
       body: SingleChildScrollView(
-        child: Form(
-            child: Column(
-              children: [
-                _fieldNamaPoli(),
-                SizedBox(height: 20),
-                _tombolUbah()
-              ],
-            )),
+        child: Container(
+          padding: EdgeInsets.fromLTRB(15, 15, 15, 0),
+          child: Form(
+            key: _formKey,
+              child: Column(
+                children: [
+                  _wTextField(namaField: "Nama Poli", namaController: _namaPoliCtrl, namaIcon: Icons.room_preferences_rounded),
+                  SizedBox(height: 10),
+                  _wTombolUbah()
+                ],
+              )),
+        ),
       ),
     );
   }
 
-  _fieldNamaPoli(){
+  Widget _wTextField({required String namaField, required namaController, required namaIcon}){
     return TextField(
       decoration: InputDecoration(
-          labelText: "Nama Poli"
+        labelText: namaField,
+        prefixIcon: Icon(namaIcon),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10)
+        ),
       ),
-      controller: _namaPoliCtrl,
+      controller: namaController,
     );
   }
 
-  _tombolUbah(){
+  Widget _wTombolUbah(){
     return ElevatedButton(
         onPressed: () async {
-          Poli poli = Poli(namaPoli: _namaPoliCtrl.text);
-          String id = widget.poli.id.toString();
-          await PoliService().ubah(poli, id).then((value) {
-            Navigator.pop(context);
+          Poli poli = Poli(
+            id: _idPoliCtrl.text,
+            nm_poli: _namaPoliCtrl.text,
+          );
+          await PoliService().updatePoli(poli).then((value) {
             Navigator.pushReplacement(context,
-              MaterialPageRoute(builder:
-                  (context) => PoliDetailPage(poli: value)));
+                MaterialPageRoute(builder:
+                    (context) => PoliDetailPage(poli: poli)));
           });
         },
         child: Text("Ubah")

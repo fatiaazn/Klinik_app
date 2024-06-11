@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:klinik_app/ui/poli_detail_page.dart';
 import 'package:klinik_app/ui/poli_form_page.dart';
 import 'package:klinik_app/ui/poli_item_page.dart';
 import 'package:klinik_app/widget/sidebar.dart';
 import '../model/poli.dart';
 import '../service/poli_service.dart';
-import '../widget/sidebar.dart';
 
 class PoliPage extends StatefulWidget {
   const PoliPage({super.key});
@@ -15,15 +13,25 @@ class PoliPage extends StatefulWidget {
 }
 
 class _PoliPageState extends State<PoliPage> {
-  Stream<List<Poli>> getList() async* {
-    List<Poli> data = await PoliService().listData();
-    yield data;
+  PoliService _poliService = PoliService();
+  Future<List<Poli>>? _poliList;
+  List<Poli>? _retrievedPoliList;
+
+  Future<void> _initRetrieval() async {
+    _poliList = _poliService.retrievePoli();
+    _retrievedPoliList = await _poliService.retrievePoli();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initRetrieval();
   }
 
   Future refreshData() async {
     await Future.delayed(Duration(seconds: 1));
     setState(() {
-      getList();
+      _initRetrieval();
     });
   }
 
@@ -35,7 +43,10 @@ class _PoliPageState extends State<PoliPage> {
         title: Text("Data Poli"),
         actions: [
           GestureDetector(
-            child: Icon(Icons.add),
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Icon(Icons.add),
+            ),
             onTap: (){
               Navigator.push(context, MaterialPageRoute(builder: (context) => PoliForm()));
             },
@@ -44,28 +55,34 @@ class _PoliPageState extends State<PoliPage> {
       ),
       body: RefreshIndicator(
         onRefresh: refreshData,
-        child: StreamBuilder(
-          stream: getList(),
-          builder: (context, AsyncSnapshot snapshot){
-            if(snapshot.hasError){
-              return Text(snapshot.error.toString());
-            }
-            if (snapshot.connectionState != ConnectionState.done){
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            if(!snapshot.hasData && snapshot.connectionState == ConnectionState.done){
-              return Text("Data Kosong");
+        child: FutureBuilder(
+          future: _poliList,
+          builder: (BuildContext context, AsyncSnapshot<List<Poli>> snapshot) {
+            if(!snapshot.hasData){
+              return Center(child: CircularProgressIndicator());
             }
 
             return ListView.builder(
-              itemCount: snapshot.data.length,
-              itemBuilder: (context, index) {
-                return PoliItem(poli: snapshot.data[index]);
+              itemCount: _retrievedPoliList!.length,
+              itemBuilder: (context, index){
+                var poli = _retrievedPoliList![index];
+                return Dismissible(
+                  key: UniqueKey(),
+                  background: Container(
+                    color: Colors.redAccent,
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.only(right: 16),
+                    child: Icon(Icons.delete, color: Colors.white,),
+                  ),
+                  onDismissed: (direction){
+                    _poliService.deletePoli(poli.id!);
+                  },
+                  direction: DismissDirection.endToStart,
+                  child: PoliItemPage(poli: poli),
+                );
               }
             );
-          },
+          }
         ),
       ),
     );

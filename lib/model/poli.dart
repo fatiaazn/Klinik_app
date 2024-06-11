@@ -1,11 +1,19 @@
-class Poli{
-  String? id;
-  String namaPoli;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-  Poli({this.id, required this.namaPoli});
+class Poli {
+  final String? id;
+  final String? nm_poli;
 
-  factory Poli.fromJson(Map<String, dynamic> json) =>
-      Poli(id: json["id"], namaPoli: json["nama_poli"]);
+  Poli({this.id, this.nm_poli});
 
-  Map<String, dynamic> toJson() => {"nama_poli": namaPoli};
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'nm_poli': nm_poli,
+    };
+  }
+
+  Poli.fromDocumentSnapshot(DocumentSnapshot<Map<String, dynamic>> doc)
+      : id = doc.id,
+        nm_poli = doc.data()!['nm_poli'];
 }

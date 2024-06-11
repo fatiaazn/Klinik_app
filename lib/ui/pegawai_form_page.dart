@@ -14,108 +14,86 @@ class _PegawaiFormState extends State<PegawaiForm> {
   final _formKey = GlobalKey<FormState>();
   final _namaPegawaiCtrl = TextEditingController();
   final _nipPegawaiCtrl = TextEditingController();
-  final _tgllhrPegawaiCtrl = TextEditingController();
+  final _tglLahirPegawaiCtrl = TextEditingController();
   final _telpPegawaiCtrl = TextEditingController();
   final _emailPegawaiCtrl = TextEditingController();
   final _passwordPegawaiCtrl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    double baseWidth = 360;
+    double fem = MediaQuery.of(context).size.width / baseWidth;
+    double ffem = fem * 0.97;
+
     return Scaffold(
       appBar: AppBar(title: Text("Tambah Pegawai")),
       body: SingleChildScrollView(
-        child: Form(
-            child: Column(
-          children: [
-            _fieldNipPegawai(),
-            SizedBox(height: 10),
-            _fieldNamaPegawai(),
-            SizedBox(height: 10),
-            _fieldTglLhrPegawai(),
-            SizedBox(height: 10),
-            _fieldTelpPegawai(),
-            SizedBox(height: 10),
-            _fieldEmailPegawai(),
-            SizedBox(height: 10),
-            _fieldPasswordPegawai(),
-            SizedBox(height: 20),
-            _tombolSimpan()
-          ],
-        )),
+        child: Container(
+          padding: EdgeInsets.fromLTRB(15*fem, 15*fem, 15*fem, 0*fem),
+          child: Form(
+            key: _formKey,
+              child: Column(
+              children: [
+                _wTextField(namaField: "NIP Pegawai", namaController: _nipPegawaiCtrl, namaIcon: Icons.credit_card, tipekeyboard: TextInputType.number),
+                _wTextField(namaField: "Nama Pegawai", namaController: _namaPegawaiCtrl, namaIcon: Icons.people_alt),
+                _wTextField(namaField: "Tanggal Lahir Pegawai", namaController: _tglLahirPegawaiCtrl, namaIcon: Icons.date_range_outlined),
+                _wTextField(namaField: "Telp Pegawai", namaController: _telpPegawaiCtrl, namaIcon: Icons.phone, tipekeyboard: TextInputType.number),
+                _wTextField(namaField: "Email Pegawai", namaController: _emailPegawaiCtrl, namaIcon: Icons.email),
+                _wTextField(namaField: "Password Pegawai", namaController: _passwordPegawaiCtrl, namaIcon: Icons.lock),
+                _wTombolSimpan(),
+                SizedBox(height: 20*fem,)
+              ],
+            )
+          ),
+        ),
       ),
     );
   }
 
-  _fieldNipPegawai(){
-    return TextField(
-      decoration: InputDecoration(
-          labelText: "NIP Pegawai"
+  Widget _wTextField({required String namaField, required namaController, required namaIcon, tipekeyboard}){
+    double baseWidth = 360;
+    double fem = MediaQuery.of(context).size.width / baseWidth;
+    double ffem = fem * 0.97;
+
+    return Container(
+      padding: EdgeInsets.only(bottom: 15*fem),
+      child: TextFormField(
+        keyboardType: (tipekeyboard==null) ? TextInputType.text : tipekeyboard,
+        decoration: InputDecoration(
+          labelText: namaField,
+          prefixIcon: Icon(namaIcon),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10*fem)
+          ),
+        ),
+        controller: namaController,
+        validator: (value) {
+          //jika inputan tidak sama dengan password
+          if (value!.isEmpty) {
+            return namaField + " tidak boleh kosong!";
+          }
+          return null;
+        },
       ),
-      controller: _nipPegawaiCtrl,
     );
   }
 
-
-  _fieldNamaPegawai(){
-    return TextField(
-      decoration: InputDecoration(
-          labelText: "Nama Pegawai"
-      ),
-      controller: _namaPegawaiCtrl,
-    );
-  }
-
-  _fieldTglLhrPegawai(){
-    return TextField(
-      decoration: InputDecoration(
-          labelText: "Tgl Lahir Pegawai"
-      ),
-      controller: _tgllhrPegawaiCtrl,
-    );
-  }
-
-  _fieldTelpPegawai(){
-    return TextField(
-      decoration: InputDecoration(
-          labelText: "Telp Pegawai"
-      ),
-      controller: _telpPegawaiCtrl,
-    );
-  }
-
-  _fieldEmailPegawai(){
-    return TextField(
-      decoration: InputDecoration(
-          labelText: "Email Pegawai"
-      ),
-      controller: _emailPegawaiCtrl,
-    );
-  }
-
-  _fieldPasswordPegawai(){
-    return TextField(
-      decoration: InputDecoration(
-          labelText: "Password Pegawai"
-      ),
-      controller: _passwordPegawaiCtrl,
-    );
-  }
-
-  _tombolSimpan(){
+  Widget _wTombolSimpan(){
     return ElevatedButton(
         onPressed: () async {
           Pegawai pegawai = Pegawai(
+            nipPegawai: _nipPegawaiCtrl.text,
             namaPegawai: _namaPegawaiCtrl.text,
-            passwordPegawai: _passwordPegawaiCtrl.text,
-            emailPegawai: _emailPegawaiCtrl.text,
+            tglLahirPegawai: _tglLahirPegawaiCtrl.text,
             telpPegawai: _telpPegawaiCtrl.text,
-            tgllhrPegawai: _tgllhrPegawaiCtrl.text,
-            nipPegawai: _nipPegawaiCtrl.text
+            emailPegawai: _emailPegawaiCtrl.text,
+            passwordPegawai: _passwordPegawaiCtrl.text,
           );
-          await PegawaiService().simpan(pegawai).then((value) {
+          await PegawaiService().addPegawai(pegawai).then((value) async {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder:
-                    (context) => PegawaiDetailPage(pegawai: value)));
+                    (context) => PegawaiDetailPage(pegawai: pegawai))
+            );
           });
         },
         child: Text("Simpan")

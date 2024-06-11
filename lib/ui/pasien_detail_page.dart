@@ -15,91 +15,132 @@ class _PasienDetailPageState extends State<PasienDetailPage> {
   @override
   Widget build(BuildContext context) {
     double baseWidth = 360;
-    double fem = MediaQuery.of(context).size.width / baseWidth; //selain text
-    double ffem = fem * 0.97; //untuk text
-
+    double fem = MediaQuery.of(context).size.width / baseWidth;
+    double ffem = fem * 0.97;
+    
     return Scaffold(
-      appBar: AppBar(title: Text("Detail Pegawai"),),
-      body: Column(
-        children: [
-          SizedBox(height: 20*fem),
-          Text(
-            "NIP Pegawai : ${widget.pasien.nomorRMPasien}",
-            style: TextStyle(fontSize: 20*ffem),
-          ),
-          Text(
-            "Nama Pegawai : ${widget.pasien.namaPasien}",
-            style: TextStyle(fontSize: 20*ffem),
-          ),
-          Text(
-            "Tgl Lahir Pegawai : ${widget.pasien.tgllhrPasien}",
-            style: TextStyle(fontSize: 20*ffem),
-          ),
-          Text(
-            "No Telp Pegawai : ${widget.pasien.telpPasien}",
-            style: TextStyle(fontSize: 20*ffem),
-          ),
-          Text(
-            "Email Pegawai : ${widget.pasien.alamatPasien}",
-            style: TextStyle(fontSize: 20*ffem),
-          ),
-          SizedBox(height: 20*fem),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      appBar: AppBar(title: Text("Detail Pasien"),),
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.fromLTRB(15*fem, 0*fem, 15*fem, 0*fem),
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _tombolubah(),
-              _tombolhapus()
+              SizedBox(height: 20*fem),
+              Center(
+                child: SizedBox(
+                  height: 110*fem,
+                  width: 110*fem,
+                  child: CircleAvatar(
+                    backgroundColor: Colors.blue,
+                    child: SizedBox(
+                      height: 65*fem,
+                      width: 65*fem,
+                      child: Image.asset("assets/img/pasien.png",)
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 5*fem,),
+              Align(alignment: Alignment.center, child: Text(widget.pasien.namaPasien!, style: TextStyle(fontSize: 26*ffem, fontWeight: FontWeight.bold))),
+              Align(alignment: Alignment.center, child: Text("Nomor RM : " + widget.pasien.nomorRMPasien!, style: TextStyle(fontSize: 16*ffem))),
+              SizedBox(height: 30*fem,),
+
+              Text("Detail Pasien :", style: TextStyle(fontSize: 18*ffem, fontWeight: FontWeight.bold)),
+              SizedBox(height: 5*fem,),
+              _wText(namaKetField: "Nomor RM Pasien", namaField: widget.pasien.nomorRMPasien, namaIcon: Icons.room_preferences_rounded, warnaBG: Colors.lightBlueAccent),
+              _wText(namaKetField: "Nama Pasien", namaField: widget.pasien.namaPasien, namaIcon: Icons.people_alt, warnaBG: Colors.green),
+              _wText(namaKetField: "Tanggal Lahir Pasien", namaField: widget.pasien.tgllhrPasien, namaIcon: Icons.date_range_outlined, warnaBG: Colors.redAccent),
+              _wText(namaKetField: "Telp Pasien", namaField: widget.pasien.telpPasien, namaIcon: Icons.phone, warnaBG: Colors.orange),
+              _wText(namaKetField: "Alamat Pasien", namaField: widget.pasien.alamatPasien, namaIcon: Icons.home, warnaBG: Colors.deepPurple),
+              SizedBox(height: 20*fem),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _wTombolUbah(),
+                  SizedBox(width: 15*fem,),
+                  _wTombolHapus()
+                ],
+              )
             ],
-          )
-        ],
+          ),
+        ),
       ),
     );
   }
 
-  _tombolubah(){
-    return ElevatedButton(
-      onPressed: (){
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => PasienUpdateForm(pasien: widget.pasien))
-        );
-      },
-      style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white),
-      child: Text("Ubah"),
+  Widget _wText({required String namaKetField, required namaField, required namaIcon, required Color warnaBG}){
+    double baseWidth = 360;
+    double fem = MediaQuery.of(context).size.width / baseWidth;
+    double ffem = fem * 0.97;
+    
+    return Container(
+      margin: EdgeInsets.only(bottom: 10*fem),
+      padding: EdgeInsets.zero,
+      color: Colors.white,
+      child: ListTile(
+        title: Text(namaKetField, style: TextStyle(fontSize: 11*ffem, fontWeight: FontWeight.bold)),
+        subtitle: Text(namaField, style: TextStyle(fontSize: 16*ffem)),
+        leading: CircleAvatar(
+          backgroundColor: warnaBG,
+          child: SizedBox(height: 50*fem, width: 50*fem, child: Icon(namaIcon, color: Colors.white)),
+        ),
+        dense: true,
+        // visualDensity: VisualDensity(vertical: -3),
+        // contentPadding: EdgeInsets.only(bottom: 10),
+      ),
     );
   }
 
-  _tombolhapus(){
-    return ElevatedButton(
-      onPressed: (){
-        AlertDialog alertDialog = AlertDialog(
-          content: Text("Yakin ingin menghapus data ini?"),
-          actions: [
-            // tombol ya
-            ElevatedButton(
-              onPressed: (){
-                Navigator.pop(context);
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => PasienPage()));
-              },
-              child: Text("YA"),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            ),
+  Widget _wTombolUbah(){
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: (){
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => PasienUpdateForm(pasien: widget.pasien))
+          );
+        },
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white),
+        child: Text("Ubah"),
+      ),
+    );
+  }
 
-            // tombol batal
-            ElevatedButton(
-              onPressed: (){
-                Navigator.pop(context);
-              },
-              child: Text("Tidak"),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.grey, foregroundColor: Colors.black),
-            )
-          ],
-        );
-        showDialog(context: context, builder: (context) => alertDialog);
-      },
-      style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-      child: Text("Hapus"),
+  Widget _wTombolHapus(){
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: (){
+          AlertDialog alertDialog = AlertDialog(
+            content: Text("Yakin ingin menghapus data ini?"),
+            actions: [
+              // tombol ya
+              ElevatedButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) => PasienPage()));
+                },
+                child: Text("YA"),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+              ),
+
+              // tombol batal
+              ElevatedButton(
+                onPressed: (){
+                  Navigator.pop(context);
+                },
+                child: Text("TIDAK"),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.grey, foregroundColor: Colors.white),
+              )
+            ],
+          );
+          showDialog(context: context, builder: (context) => alertDialog);
+        },
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+        child: Text("Hapus"),
+      ),
     );
   }
 }

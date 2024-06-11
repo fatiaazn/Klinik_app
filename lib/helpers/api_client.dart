@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
 
 final Dio dio = Dio(BaseOptions(
-    // baseUrl: 'hapus komentar disini dan pastekan endpoint kamu yang sudah dibuat', //mockapi
+    // baseUrl: 'https://655c62d625b76d9884fd1bc2.mockapi.io/', //mockapi
+    baseUrl: 'https://655c62d625b76d9884fd1bc2.mockapi.io/', //testapi
     connectTimeout: Duration(milliseconds: 5000),
     receiveTimeout: Duration(milliseconds: 3000)));
 
